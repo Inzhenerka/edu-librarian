@@ -1,0 +1,29 @@
+- doc_id: mamin_priemish
+  file: mamin-priemish.txt
+  title: Приёмыш
+  author: Д. Н. Мамин-Сибиряк
+  source: Русская Викитека
+  source_url: https://ru.wikisource.org/wiki/Приемыш_(Мамин-Сибиряк)/Версия_2
+  section: Уральская проза
+  rights: Произведение 1891 года; опубликовано до 1929 г.
+  content_scope: Полный текст рассказа.
+
+- doc_id: berezin_ural
+  file: berezin-ural-1910.txt
+  title: Урал
+  author: Н. И. Березин
+  source: Русская Викитека
+  source_url: https://ru.wikisource.org/wiki/Урал_(Березин)/ДО
+  section: Краеведение Урала
+  rights: Издание Российской империи 1910 года; опубликовано до 1929 г.
+  content_scope: В корпус включена только глава I «Природа Уральских гор»; полная книга доступна по source_url.
+
+- doc_id: esbe_demidovy
+  file: esbe-demidovy-semya.txt
+  title: Демидовы, семья
+  author: В. Е. Рудаков; Энциклопедический словарь Брокгауза и Ефрона
+  source: Русская Викитека (ЭСБЕ)
+  source_url: https://ru.wikisource.org/wiki/ЭСБЕ/Демидовы,_семья
+  section: Энциклопедические статьи
+  rights: Энциклопедическая статья 1893 года. Опубликовано до 1929 г.
+  content_scope: Полный текст энциклопедической статьи.

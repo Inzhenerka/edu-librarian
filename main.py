@@ -1,20 +1,16 @@
-from dotenv import load_dotenv
+from pathlib import Path
 
-from edu_librarian.agent import Librarian
+from edu_librarian.rag.splitter import iter_corpus_chunks
 
-load_dotenv()
 
-agent = Librarian(llm_key="api")
+chunks = list(iter_corpus_chunks(Path("corpus")))
 
-QUESTIONS = [
-    "Какие заводы получил Никита Демидов в 1702 году?",
-    "Чем богат Урал по описанию Н. И. Березина в его очерке 1910 года?",
-]
+print(f"\nКорпус разрезан на {len(chunks)} чанков:\n")
+for chunk in chunks[:4]:
+    print(f"📄 {chunk.id}")
+    print(f"   позиция [{chunk.start_pos}-{chunk.end_pos}]")
+    print(f"   «{chunk.chunk_text[:100].strip()}...»")
+    print(f"   metadata: {sorted(chunk.metadata.keys())}\n")
 
-thread_id = None
-
-for q in QUESTIONS:
-    print(f"\n\n❓ {q}\n")
-    answer = agent.invoke(q, thread_id=thread_id)
-    thread_id = answer.thread_id
-    print(f"📜 {answer.content}")
+if len(chunks) > 4:
+    print(f"...и ещё {len(chunks) - 4} чанков")
