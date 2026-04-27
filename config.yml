@@ -1,0 +1,17 @@
+# LLM model parameters
+llms:
+  api:
+    model: "gpt-5.4-nano"
+    base_url: "https://llm.inzhenerka-cloud.com/"
+    timeout: 60
+    max_output_tokens: 1024
+  ollama:
+    model: "qwen2.5:0.5b"
+    provider: "ollama"
+    base_url: "http://localhost:11434/"
+    timeout: 60
+    max_output_tokens: 1024
+
+# Various app-wide settings
+app:
+  log_level: "INFO"

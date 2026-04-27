@@ -1,0 +1,21 @@
+# Среда
+.venv/
+.uv-cache/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Секреты
+.env
+
+# Локальные временные данные
+data/
+manifest.json
+
+# IDE
+.vscode/
+.idea/
+
+# Прочее
+.DS_Store
+*.log
