@@ -12,12 +12,12 @@ from edu_librarian.config import Config
 from edu_librarian.prompts import LibrarianPrompt
 
 
-class LibAgentResponse(BaseModel):
+class LibrarianResponse(BaseModel):
     content: str
     thread_id: str
 
 
-class LibAgent:
+class Librarian:
     _agent: CompiledStateGraph
 
     def __init__(self, llm_key: str, debug: bool = False):
@@ -43,7 +43,7 @@ class LibAgent:
             debug=debug,
         )
 
-    def invoke(self, prompt: str, thread_id: str | None = None) -> LibAgentResponse:
+    def invoke(self, prompt: str, thread_id: str | None = None) -> LibrarianResponse:
         """Вызываем агента и извлекаем ответ из массива сообщений"""
 
         # Ограничиваем длину запроса для экономии токенов
@@ -59,7 +59,7 @@ class LibAgent:
         )
 
         # Формируем ответ из последнего сообщения и состояния
-        return LibAgentResponse(
+        return LibrarianResponse(
             content=response['messages'][-1].content,
             thread_id=effective_thread_id,
         )

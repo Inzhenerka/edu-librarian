@@ -1,10 +1,10 @@
 from dotenv import load_dotenv
 
-from edu_librarian.agent import LibAgent
+from edu_librarian.agent import Librarian
 
 load_dotenv()
 
-agent = LibAgent(llm_key="api")
+agent = Librarian(llm_key="api")
 
 QUESTIONS = [
     "Какие заводы получил Никита Демидов в 1702 году?",
