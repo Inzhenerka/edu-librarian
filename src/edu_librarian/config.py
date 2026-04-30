@@ -1,7 +1,7 @@
 from typing import Literal, Self
 import yaml
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 type LogLevelType = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
@@ -18,9 +18,20 @@ class LLMConfig(BaseModel):
     max_output_tokens: int = 512
 
 
+class EmbeddingsConfig(BaseModel):
+    model: str = "text-embedding-3-small"
+    base_url: str | None = None
+    timeout: float = 30.0
+
+
+class RAGConfig(BaseModel):
+    embeddings: EmbeddingsConfig = Field(default_factory=EmbeddingsConfig)
+
+
 class Config(BaseModel):
     app: AppConfig
     llms: dict[str, LLMConfig]
+    rag: RAGConfig
 
     @classmethod
     def from_yaml_file(cls, config_path: str | Path = "config.yml") -> Self:

@@ -12,6 +12,12 @@ llms:
     timeout: 60
     max_output_tokens: 1024
 
+# RAG system parameters
+rag:
+  embeddings:
+    model: "text-embedding-3-small"
+    base_url: "https://llm.inzhenerka-cloud.com/"
+
 # Various app-wide settings
 app:
   log_level: "INFO"
