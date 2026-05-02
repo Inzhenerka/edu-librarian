@@ -12,6 +12,12 @@ llms:
     timeout: 60
     max_output_tokens: 1024
 
+# RAG parameters
+rag:
+  corpus:
+    text_dir: "corpus"
+    manifest_file: "corpus/manifest.yml"
+
 # Various app-wide settings
 app:
   log_level: "INFO"

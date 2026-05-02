@@ -1,20 +1,23 @@
-from dotenv import load_dotenv
+from pathlib import Path
 
-from edu_librarian.agent import Librarian
+from edu_librarian.config import Config
+from edu_librarian.rag.corpus import CorpusManifest
 
-load_dotenv()
+config = Config.from_yaml_file("config.yml")
 
-agent = Librarian(llm_key="api")
+# 1. Читаем манифест корпуса из файла
+corpus_manifest = CorpusManifest.from_yaml_file(config.rag.corpus.manifest_file)
 
-QUESTIONS = [
-    "Какие заводы получил Никита Демидов в 1702 году?",
-    "Чем богат Урал по описанию Н. И. Березина в его очерке 1910 года?",
-]
+# 2. Извлекаем паспорт первого документа
+doc = corpus_manifest.documents[0]
 
-thread_id = None
+# 3. Читаем .txt-файл документа и берём начало текста
+text = (config.rag.corpus.text_dir / doc.file).read_text(encoding="utf-8")
+fragment = text[:100]
 
-for q in QUESTIONS:
-    print(f"\n\n❓ {q}\n")
-    answer = agent.invoke(q, thread_id=thread_id)
-    thread_id = answer.thread_id
-    print(f"📜 {answer.content}")
+# 5. Печатаем паспорт документа и поля собранного чанка
+print(f"📚 Документ: {doc.title}")
+print(f"   Автор: {doc.author}")
+print(f"   Раздел: {doc.section}")
+print(f"   Источник: {doc.source} ({doc.source_url})")
+print(f"   Фрагмент: {fragment}...")

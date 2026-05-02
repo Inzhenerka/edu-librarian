@@ -18,9 +18,19 @@ class LLMConfig(BaseModel):
     max_output_tokens: int = 512
 
 
+class CorpusConfig(BaseModel):
+    text_dir: Path = Path("corpus")
+    manifest_file: Path = Path("corpus/manifest.yml")
+
+
+class RAGConfig(BaseModel):
+    corpus: CorpusConfig
+
+
 class Config(BaseModel):
     app: AppConfig
     llms: dict[str, LLMConfig]
+    rag: RAGConfig
 
     @classmethod
     def from_yaml_file(cls, config_path: str | Path = "config.yml") -> Self:
