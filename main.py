@@ -1,23 +1,26 @@
-from pathlib import Path
-
 from edu_librarian.config import Config
-from edu_librarian.rag.corpus import CorpusManifest
+from edu_librarian.rag.chunk import load_chunks, ChunkMetadata
+from edu_librarian.rag.corpus import get_corpus_loader
+from edu_librarian.rag.text_splitter import get_text_splitter
 
+
+# 1. Поднимаем конфиг, лоадер корпуса и сплиттер
 config = Config.from_yaml_file("config.yml")
+loader = get_corpus_loader(config.rag.corpus)
+splitter = get_text_splitter(config.rag.splitter)
 
-# 1. Читаем манифест корпуса из файла
-corpus_manifest = CorpusManifest.from_yaml_file(config.rag.corpus.manifest_file)
+# 2. Загружаем из корпуса чанки с метаданными и id
+chunks = load_chunks(loader, splitter)
 
-# 2. Извлекаем паспорт первого документа
-doc = corpus_manifest.documents[0]
+print(f"📚 Корпус: {loader.manifest.name}")
+print(f"   Чанков всего: {len(chunks)}\n")
 
-# 3. Читаем .txt-файл документа и берём начало текста
-text = (config.rag.corpus.text_dir / doc.file).read_text(encoding="utf-8")
-fragment = text[:100]
-
-# 5. Печатаем паспорт документа и поля собранного чанка
-print(f"📚 Документ: {doc.title}")
-print(f"   Автор: {doc.author}")
-print(f"   Раздел: {doc.section}")
-print(f"   Источник: {doc.source} ({doc.source_url})")
-print(f"   Фрагмент: {fragment}...")
+# 3. Первый чанк и его метаданные
+chunk = chunks[0]
+meta = ChunkMetadata.from_document(chunk)
+print(f"📄 Первый чанк")
+print(f"   id (UUID5):  {chunk.id}")
+print(f"   chunk_id:    {meta.chunk_id}")
+print(f"   start_index: {meta.start_index}")
+print(f"   длина:       {len(chunk.page_content)} символов")
+print(f"   текст:       «{chunk.page_content[:80].strip()}…»\n")
