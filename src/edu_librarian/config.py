@@ -28,9 +28,17 @@ class SplitterConfig(BaseModel):
     chunk_overlap: int = 180
 
 
+class EmbedderConfig(BaseModel):
+    model: str = "text-embedding-3-small"
+    base_url: str | None = None
+    dimensions: int = 1536
+    timeout: float = 30.0
+
+
 class RAGConfig(BaseModel):
     corpus: CorpusConfig
     splitter: SplitterConfig
+    embedder: EmbedderConfig
 
 
 class Config(BaseModel):

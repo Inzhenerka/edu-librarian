@@ -20,6 +20,10 @@ rag:
   splitter:
     chunk_size: 900
     chunk_overlap: 180
+  embedder:
+    model: "text-embedding-3-small"
+    base_url: "https://llm.inzhenerka-cloud.com/"
+    dimensions: 1536
 
 # Various app-wide settings
 app:
