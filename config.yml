@@ -17,6 +17,9 @@ rag:
   corpus:
     text_dir: "corpus"
     manifest_file: "corpus/manifest.yml"
+  splitter:
+    chunk_size: 900
+    chunk_overlap: 180
 
 # Various app-wide settings
 app:

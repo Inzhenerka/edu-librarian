@@ -23,8 +23,14 @@ class CorpusConfig(BaseModel):
     manifest_file: Path = Path("corpus/manifest.yml")
 
 
+class SplitterConfig(BaseModel):
+    chunk_size: int = 900
+    chunk_overlap: int = 180
+
+
 class RAGConfig(BaseModel):
     corpus: CorpusConfig
+    splitter: SplitterConfig
 
 
 class Config(BaseModel):

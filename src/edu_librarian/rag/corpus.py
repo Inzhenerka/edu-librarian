@@ -22,6 +22,7 @@ class CorpusDocument(BaseModel):
 
 
 class CorpusManifest(BaseModel):
+    """Манифест корпуса документов."""
     name: str
     description: str
     documents: list[CorpusDocument]
@@ -30,3 +31,21 @@ class CorpusManifest(BaseModel):
     def from_yaml_file(cls, manifest_path: str | Path) -> Self:
         text = Path(manifest_path).read_text(encoding="utf-8")
         return cls.model_validate(yaml.safe_load(text))
+
+
+class CorpusLoader(BaseLoader):
+    """Загрузчик документов корпуса с паспортами из манифеста."""
+
+    def __init__(self, config: CorpusConfig):
+        self.text_dir = config.text_dir
+        self.manifest = CorpusManifest.from_yaml_file(config.manifest_file)
+
+    def lazy_load(self) -> Iterator[Document]:
+        for doc in self.manifest.documents:
+            text = (self.text_dir / doc.file).read_text(encoding="utf-8").strip()
+            yield Document(page_content=text, metadata=doc.model_dump())
+
+
+def get_corpus_loader(config: CorpusConfig) -> CorpusLoader:
+    """Создание сконфигурированного загрузчика документов."""
+    return CorpusLoader(config=config)
