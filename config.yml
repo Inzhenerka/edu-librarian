@@ -24,6 +24,12 @@ rag:
     model: "text-embedding-3-small"
     base_url: "https://llm.inzhenerka-cloud.com/"
     dimensions: 1536
+  store:
+    collection: "ural_corpus"
+    location: ":memory:"
+  retriever:
+    k: 3
+    score_threshold: 0.6
 
 # Various app-wide settings
 app:

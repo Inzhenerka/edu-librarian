@@ -19,3 +19,6 @@ manifest.json
 # Прочее
 .DS_Store
 *.log
+
+# Локальное хранилище
+.qdrant_data

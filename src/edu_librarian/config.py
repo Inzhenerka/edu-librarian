@@ -35,10 +35,22 @@ class EmbedderConfig(BaseModel):
     timeout: float = 30.0
 
 
+class StoreConfig(BaseModel):
+    collection: str
+    location: str = ":memory:"
+
+
+class RetrieverConfig(BaseModel):
+    k: int = 3
+    score_threshold: float = 0.6
+
+
 class RAGConfig(BaseModel):
     corpus: CorpusConfig
     splitter: SplitterConfig
     embedder: EmbedderConfig
+    store: StoreConfig
+    retriever: RetrieverConfig
 
 
 class Config(BaseModel):
