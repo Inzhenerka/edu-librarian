@@ -2,6 +2,7 @@
 llms:
   api:
     model: "gpt-5.4-nano"
+    provider: "openai"
     base_url: "https://llm.inzhenerka-cloud.com/"
     timeout: 60
     max_output_tokens: 1024

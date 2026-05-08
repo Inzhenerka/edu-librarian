@@ -1,0 +1,11 @@
+{% if chunks %}
+Источники из библиотеки для ответа на следующий вопрос:
+{% for chunk in chunks %}
+[{{ loop.index }}] «{{ chunk.metadata.title }}», {{ chunk.metadata.author }} (раздел: {{ chunk.metadata.section }}):
+{{ chunk.page_content }}
+{% endfor -%}
+{% else %}
+По текущему запросу в библиотеке ничего релевантного не нашлось.
+{% endif %}
+Вопрос:
+{{ question }}

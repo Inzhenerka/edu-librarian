@@ -10,6 +10,9 @@ from pydantic import BaseModel
 from edu_librarian.chat_model import load_chat_model
 from edu_librarian.config import Config
 from edu_librarian.prompts import LibrarianPrompt
+from edu_librarian.middleware.rag import RAGMiddleware
+from edu_librarian.rag.ingestion import ingest_corpus
+from edu_librarian.rag.retriever import get_retriever
 
 
 class LibrarianResponse(BaseModel):
@@ -30,6 +33,10 @@ class Librarian:
         # Создаем модель чата
         chat_model = load_chat_model(llm_config=llm_config)
 
+        # Готовим RAG-pipeline и создаем ретривер
+        vector_store = ingest_corpus(config.rag)
+        retriever = get_retriever(config.rag.retriever, vector_store=vector_store)
+
         # Создаем примитивного агента ReAct
         self._agent = create_agent(
             model=chat_model,
@@ -39,6 +46,7 @@ class Librarian:
             middleware=[
                 ModelRetryMiddleware(max_retries=2, initial_delay=1),
                 ModelCallLimitMiddleware(run_limit=4, exit_behavior="end"),
+                RAGMiddleware(retriever=retriever),  # Подключаем RAG к агенту
             ],
             debug=debug,
         )
