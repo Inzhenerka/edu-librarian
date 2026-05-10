@@ -11,13 +11,16 @@ from edu_librarian.chat_model import load_chat_model
 from edu_librarian.config import Config
 from edu_librarian.prompts import LibrarianPrompt
 from edu_librarian.middleware.rag import RAGMiddleware
+from edu_librarian.rag.chunk import ChunkMetadata
 from edu_librarian.rag.ingestion import ingest_corpus
+from edu_librarian.rag.provenance import parse_referenced_chunks
 from edu_librarian.rag.retriever import get_retriever
 
 
 class LibrarianResponse(BaseModel):
     content: str
     thread_id: str
+    sources: dict[int, ChunkMetadata]
 
 
 class Librarian:
@@ -66,8 +69,19 @@ class Librarian:
             config={"configurable": {"thread_id": effective_thread_id}},
         )
 
-        # Формируем ответ из последнего сообщения и состояния
+        # Извлекаем из состояния ответ LLM и исходные чанки для обработки
+        response_content = response["messages"][-1].content
+        chunks = response.get("chunks") or []
+
+        # Обрабатываем сноски в ответе, формируем из чанков словарь источников
+        sources = parse_referenced_chunks(
+            content=response_content,
+            chunks=chunks,
+        )
+
+        # Формируем ответ, включая источники
         return LibrarianResponse(
-            content=response['messages'][-1].content,
+            content=response_content,
+            sources=sources,
             thread_id=effective_thread_id,
         )

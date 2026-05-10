@@ -1,7 +1,7 @@
 # LLM model parameters
 llms:
   api:
-    model: "gpt-5.4-nano"
+    model: "gpt-5.4-mini"
     provider: "openai"
     base_url: "https://llm.inzhenerka-cloud.com/"
     timeout: 60
