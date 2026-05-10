@@ -1,6 +1,7 @@
 from typing import Any, Callable
 
 from langchain.agents.middleware import AgentMiddleware, ModelRequest, ModelResponse
+from langchain.messages import HumanMessage
 from langchain_core.retrievers import BaseRetriever
 from langgraph.runtime import Runtime
 from loguru import logger
@@ -23,11 +24,13 @@ class RAGMiddleware(AgentMiddleware[LibrarianAgentState]):
         state: LibrarianAgentState,
         runtime: Runtime,
     ) -> dict[str, Any] | None:
-        """Готовим чанки под вопрос пользователя перед запуском агентской петли."""
-        question = str(state["messages"][-1].content)
+        """Готовим чанки под текущую тему беседы."""
+
+        # Создаем запрос для ретривера из свежей истории сообщений
+        query = build_retrieval_query(state, max_messages=3)
 
         # Получаем чанки с помощью ретривера
-        chunks = self._retriever.invoke(question)
+        chunks = self._retriever.invoke(query)
         logger.debug(f"RAG retrieved {len(chunks)} chunks")
 
         # Обновляем состояние
@@ -55,3 +58,9 @@ class RAGMiddleware(AgentMiddleware[LibrarianAgentState]):
         new_messages = [*request.messages[:-1], enriched_message]
         logger.debug(f"User message enriched with chunks:\n{enriched_message.content}")
         return handler(request.override(messages=new_messages))
+
+
+def build_retrieval_query(state: LibrarianAgentState, max_messages: int = 3) -> str:
+    """Собрать запрос для ретривера из последних N сообщений пользователя, чтобы не терять контекст."""
+    human_messages = [m for m in state["messages"] if isinstance(m, HumanMessage)]
+    return "\n".join(str(m.content) for m in human_messages[-max_messages:])
