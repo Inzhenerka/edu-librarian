@@ -3,6 +3,7 @@ import uuid
 from langchain.agents import create_agent
 from langchain.agents.middleware import ModelCallLimitMiddleware, ModelRetryMiddleware
 from langchain.messages import HumanMessage
+from langchain_core.vectorstores import VectorStore
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel
@@ -12,7 +13,6 @@ from edu_librarian.config import Config
 from edu_librarian.prompts import LibrarianPrompt
 from edu_librarian.middleware.rag import RAGMiddleware
 from edu_librarian.rag.chunk import ChunkMetadata
-from edu_librarian.rag.ingestion import ingest_corpus
 from edu_librarian.rag.provenance import parse_referenced_chunks
 from edu_librarian.rag.retriever import get_retriever
 
@@ -26,18 +26,13 @@ class LibrarianResponse(BaseModel):
 class Librarian:
     _agent: CompiledStateGraph
 
-    def __init__(self, llm_key: str, debug: bool = False):
+    def __init__(self, llm_key: str, config: Config, vector_store: VectorStore, debug: bool = False):
         """Инициализация обертки агента."""
 
-        # Загружаем конфигурацию
-        config = Config.from_yaml_file("config.yml")
-        llm_config = config.llms[llm_key]
-
         # Создаем модель чата
-        chat_model = load_chat_model(llm_config=llm_config)
+        chat_model = load_chat_model(config.llms[llm_key])
 
-        # Готовим RAG-pipeline и создаем ретривер
-        vector_store = ingest_corpus(config.rag)
+        # Создаем ретривер
         retriever = get_retriever(config.rag.retriever, vector_store=vector_store)
 
         # Создаем примитивного агента ReAct

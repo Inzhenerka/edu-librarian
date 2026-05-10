@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сказитель — цифровая краеведческая библиотека Урала</title>
+    <style>
+        :root {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            --page-bg: #f4ecdf;
+            --panel-bg: #fffaf0;
+            --panel-border: #cdb78a;
+            --text-main: #2c1f0e;
+            --text-muted: #6f5b3a;
+            --accent: #8b3a1d;
+            --accent-hover: #6b2c14;
+            --accent-soft: #f3e2cf;
+            --user-bg: #fff3df;
+            --error-bg: #fff4f4;
+            --error-border: #e9c8c8;
+            --source-bg: #faf3e2;
+            --source-border: #d4bf91;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 16px;
+            min-height: 100svh;
+            height: 100dvh;
+            background: var(--page-bg);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        main {
+            max-width: 920px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+        }
+
+        .page-header {
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin: 0 0 4px;
+            font-size: 28px;
+            color: var(--accent);
+            font-family: "Georgia", "Segoe UI", serif;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        .chat-form {
+            display: grid;
+            gap: 10px;
+            height: 100%;
+            min-height: 0;
+            grid-template-rows: minmax(0, 1fr);
+        }
+
+        label {
+            display: grid;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        textarea,
+        button {
+            font: inherit;
+        }
+
+        textarea {
+            width: 100%;
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: #fff;
+            color: var(--text-main);
+        }
+
+        textarea:focus {
+            outline: 2px solid rgba(139, 58, 29, 0.14);
+            border-color: var(--accent);
+        }
+
+        .chat-card {
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            background: var(--panel-bg);
+            display: grid;
+            gap: 12px;
+            padding: 12px 14px;
+            height: 100%;
+            min-height: 0;
+            grid-template-rows: minmax(0, 1fr) auto;
+        }
+
+        .messages {
+            display: grid;
+            gap: 10px;
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 4px;
+            align-content: start;
+        }
+
+        .empty-state {
+            display: grid;
+            place-items: center;
+            min-height: 180px;
+            padding: 18px;
+            border: 1px dashed var(--panel-border);
+            border-radius: 10px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .empty-state strong {
+            color: var(--accent);
+        }
+
+        .message {
+            display: grid;
+            gap: 6px;
+            width: fit-content;
+            max-width: 86%;
+            align-content: start;
+        }
+
+        .message.user {
+            justify-self: end;
+        }
+
+        .message.assistant,
+        .message.system {
+            justify-self: start;
+        }
+
+        .message-meta {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .message-bubble {
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            line-height: 1.55;
+            background: var(--panel-bg);
+            word-break: break-word;
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        .message.user .message-bubble {
+            background: var(--user-bg);
+            border-color: #e0c79a;
+        }
+
+        .message.assistant .message-bubble {
+            background: var(--accent-soft);
+            border-color: #d9b994;
+        }
+
+        .message.pending .message-bubble {
+            color: var(--text-muted);
+            background: #f7eeda;
+            border-color: #d4bf91;
+        }
+
+        .message.system .message-bubble {
+            background: var(--error-bg);
+            border-color: var(--error-border);
+            color: #9c2f2f;
+        }
+
+        .message-bubble pre {
+            margin: 0 0 12px;
+            overflow-x: auto;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .message-bubble code {
+            padding: 1px 4px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.76);
+            font-family: Consolas, monospace;
+        }
+
+        .message-bubble pre code {
+            padding: 0;
+            background: transparent;
+        }
+
+        .sources {
+            display: grid;
+            gap: 6px;
+        }
+
+        .sources-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .citation {
+            background: var(--source-bg);
+            border: 1px solid var(--source-border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px;
+            transition: border-color 0.15s ease;
+        }
+
+        .citation:hover {
+            border-color: var(--accent);
+        }
+
+        .citation-head {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .citation-ref {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .citation-title {
+            font-weight: 600;
+        }
+
+        .citation-meta {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .composer {
+            display: grid;
+            gap: 10px;
+        }
+
+        textarea[name="question"] {
+            min-height: 84px;
+            resize: vertical;
+        }
+
+        .composer-actions {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: end;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        button {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, opacity 0.15s ease;
+        }
+
+        .button-primary {
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .button-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .button-secondary {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid var(--source-border);
+        }
+
+        .button-secondary:hover {
+            background: #ead4b3;
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        @media (max-width: 719px) {
+            body {
+                padding: 12px;
+            }
+
+            .message {
+                max-width: 100%;
+            }
+
+            .composer-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .button-row {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .button-row button {
+                flex: 1 1 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <section class="page-header">
+        <div>
+            <h1>Сказитель</h1>
+            <p>Цифровая краеведческая библиотека Урала</p>
+        </div>
+    </section>
+
+    <form id="demo-form" class="chat-form">
+        <input id="thread-id" type="hidden" name="thread_id" value="">
+
+        <section class="chat-card">
+            <div id="messages" class="messages" aria-live="polite"></div>
+
+            <div class="composer">
+                <label>
+                    Вопрос
+                    <textarea
+                            id="question"
+                            name="question"
+                            rows="3"
+                            title="Сообщение. Ctrl+Enter отправляет"
+                            placeholder="Например: «Кого старик Тарас приютил у себя на озере?» или «Какие заводы получил Никита Демидов в 1702 году?»"
+                            required
+                    ></textarea>
+                </label>
+
+                <div class="composer-actions">
+                    <div class="button-row" style="justify-content: flex-start">
+                        <button id="new-chat-btn" class="button-secondary" type="button">Новый разговор</button>
+                    </div>
+                    <div class="button-row">
+                        <button id="submit-btn" class="button-primary" type="submit" title="Ctrl+Enter">Спросить</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </form>
+</main>
+
+<script>
+    const form = document.getElementById("demo-form");
+    const messagesNode = document.getElementById("messages");
+    const questionField = document.getElementById("question");
+    const submitButton = document.getElementById("submit-btn");
+    const newChatButton = document.getElementById("new-chat-btn");
+    const threadField = document.getElementById("thread-id");
+
+    const state = {
+        threadId: "",
+        isSubmitting: false,
+        messages: [],
+    };
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;");
+    }
+
+    function renderMarkdown(source) {
+        const codeBlocks = [];
+        const withPlaceholders = escapeHtml(source).replace(/```([\s\S]*?)```/g, (_, code) => {
+            const placeholder = `__CODE_BLOCK_${codeBlocks.length}__`;
+            codeBlocks.push(`<pre><code>${code.trim()}</code></pre>`);
+            return placeholder;
+        });
+
+        return withPlaceholders
+            .replace(/^### (.*$)\n?/gm, "<h3>$1</h3>")
+            .replace(/^## (.*$)\n?/gm, "<h2>$1</h2>")
+            .replace(/^# (.*$)\n?/gm, "<h1>$1</h1>")
+            .replace(/`([^`]+)`/g, "<code>$1</code>")
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+            .replace(/\n/g, "<br>")
+            .replace(/__CODE_BLOCK_(\d+)__/g, (_, index) => codeBlocks[Number(index)]);
+    }
+
+    function renderPlainText(source) {
+        return escapeHtml(source).replace(/\n/g, "<br>");
+    }
+
+    function formatTime(isoString) {
+        return new Date(isoString).toLocaleTimeString("ru-RU", {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    }
+
+    function setThreadId(value) {
+        state.threadId = value || "";
+        threadField.value = state.threadId;
+    }
+
+    function getRoleLabel(role) {
+        if (role === "user") return "Вы";
+        if (role === "assistant") return "Сказитель";
+        return "Система";
+    }
+
+    function normalizeSources(sources) {
+        if (!sources || typeof sources !== "object" || Array.isArray(sources)) {
+            return [];
+        }
+        return Object.entries(sources)
+            .map(([ref, metadata]) => ({
+                ref: `[${ref}]`,
+                ...(metadata && typeof metadata === "object" ? metadata : {}),
+            }))
+            .sort((a, b) => Number(a.ref.replace(/\D/g, "")) - Number(b.ref.replace(/\D/g, "")));
+    }
+
+    function renderSources(sources) {
+        const normalizedSources = normalizeSources(sources);
+        if (!normalizedSources.length) return "";
+        const items = normalizedSources.map((source) => {
+            const metaParts = [];
+            if (source.author) metaParts.push(escapeHtml(source.author));
+            if (source.section) metaParts.push(escapeHtml(source.section));
+            if (source.source) metaParts.push(escapeHtml(source.source));
+            if (source.content_scope) metaParts.push(escapeHtml(source.content_scope));
+            if (Number.isInteger(source.start_index)) metaParts.push(`позиция ${source.start_index}`);
+            if (source.source_url) {
+                metaParts.push(`<a href="${escapeHtml(source.source_url)}" target="_blank" rel="noopener">оригинал</a>`);
+            }
+            const meta = metaParts.length ? `<span class="citation-meta">· ${metaParts.join(" · ")}</span>` : "";
+            return `
+                <div class="citation">
+                    <div class="citation-head">
+                        <span class="citation-ref">${escapeHtml(source.ref)}</span>
+                        <span class="citation-title">${escapeHtml(source.title || "")}</span>
+                        ${meta}
+                    </div>
+                </div>
+            `;
+        }).join("");
+        return `
+            <div class="sources">
+                <div class="sources-title">Источники</div>
+                ${items}
+            </div>
+        `;
+    }
+
+    function renderMessages() {
+        if (state.messages.length === 0) {
+            messagesNode.innerHTML = `
+                <div class="empty-state">
+                    Это <strong>Сказитель</strong> — ИИ-библиотекарь нашего регионального центра.<br>
+                    Спроси у него про «Приёмыша» Мамина-Сибиряка, природу Урала по Березину или семью Демидовых —
+                    он ответит и пришлёт ссылки на источники.
+                </div>
+            `;
+            return;
+        }
+
+        messagesNode.innerHTML = state.messages.map((message) => {
+            const meta = [getRoleLabel(message.role), formatTime(message.createdAt)];
+            if (!message.pending && message.durationMs) {
+                meta.push(`${(message.durationMs / 1000).toFixed(2)} с`);
+            }
+
+            const body = message.role === "assistant" && !message.pending
+                ? renderMarkdown(message.content)
+                : renderPlainText(message.content);
+
+            const sourcesHtml = (message.role === "assistant" && !message.pending)
+                ? renderSources(message.sources)
+                : "";
+
+            return `
+                <article class="message ${message.role}${message.pending ? " pending" : ""}">
+                    <div class="message-meta">${meta.map(escapeHtml).join(" · ")}</div>
+                    <div class="message-bubble">${body}</div>
+                    ${sourcesHtml}
+                </article>
+            `;
+        }).join("");
+
+        messagesNode.scrollTop = messagesNode.scrollHeight;
+    }
+
+    function addMessage(role, content, options = {}) {
+        state.messages.push({
+            role,
+            content,
+            createdAt: new Date().toISOString(),
+            durationMs: options.durationMs || 0,
+            pending: Boolean(options.pending),
+            sources: options.sources || {},
+        });
+        renderMessages();
+        return state.messages.length - 1;
+    }
+
+    function updateMessage(index, patch) {
+        if (index < 0 || index >= state.messages.length) return;
+        state.messages[index] = { ...state.messages[index], ...patch };
+        renderMessages();
+    }
+
+    function normalizeResponse(payload) {
+        if (!payload || typeof payload !== "object") {
+            throw new Error("Сервис вернул пустой ответ.");
+        }
+        if (typeof payload.content !== "string") {
+            throw new Error("Ответ сервиса не содержит поле content.");
+        }
+        return {
+            content: payload.content,
+            sources: payload.sources && typeof payload.sources === "object" && !Array.isArray(payload.sources)
+                ? payload.sources
+                : {},
+            threadId: typeof payload.thread_id === "string" ? payload.thread_id : state.threadId,
+        };
+    }
+
+    function formatErrorDetail(item) {
+        if (!item || typeof item !== "object") return "";
+        const location = Array.isArray(item.loc) ? item.loc.join(".") : "";
+        const message = typeof item.msg === "string" ? item.msg : JSON.stringify(item);
+        return location ? `${location}: ${message}` : message;
+    }
+
+    function getErrorMessage(payload, fallback) {
+        if (!payload || typeof payload !== "object") return fallback;
+        if (typeof payload.detail === "string") return payload.detail;
+        if (Array.isArray(payload.detail)) {
+            return payload.detail.map(formatErrorDetail).filter(Boolean).join("\n") || fallback;
+        }
+        return typeof payload.error === "string" ? payload.error : fallback;
+    }
+
+    function resetChat() {
+        setThreadId("");
+        state.messages = [];
+        renderMessages();
+        questionField.value = "";
+        questionField.focus();
+    }
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const question = questionField.value.trim();
+        if (!question || state.isSubmitting) return;
+
+        state.isSubmitting = true;
+        submitButton.disabled = true;
+        newChatButton.disabled = true;
+
+        addMessage("user", question);
+        const pendingIndex = addMessage("assistant", "Сказитель листает страницы…", { pending: true });
+
+        const requestData = new FormData();
+        requestData.set("question", question);
+        if (state.threadId) requestData.set("thread_id", state.threadId);
+
+        const startedAt = performance.now();
+
+        try {
+            const response = await fetch("/ask", { method: "POST", body: requestData });
+            const payload = await response.json().catch(() => null);
+            if (!response.ok) {
+                throw new Error(getErrorMessage(payload, "Запрос завершился ошибкой."));
+            }
+            const result = normalizeResponse(payload);
+            setThreadId(result.threadId);
+            updateMessage(pendingIndex, {
+                role: "assistant",
+                content: result.content,
+                createdAt: new Date().toISOString(),
+                durationMs: performance.now() - startedAt,
+                pending: false,
+                sources: result.sources,
+            });
+            questionField.value = "";
+            questionField.focus();
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            updateMessage(pendingIndex, {
+                role: "system",
+                content: message,
+                createdAt: new Date().toISOString(),
+                durationMs: 0,
+                pending: false,
+                sources: {},
+            });
+        } finally {
+            state.isSubmitting = false;
+            submitButton.disabled = false;
+            newChatButton.disabled = false;
+        }
+    });
+
+    newChatButton.addEventListener("click", () => {
+        if (state.isSubmitting) return;
+        resetChat();
+    });
+
+    questionField.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            form.requestSubmit();
+        }
+    });
+
+    setThreadId("");
+    renderMessages();
+</script>
+</body>
+</html>

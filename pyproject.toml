@@ -18,6 +18,8 @@ dependencies = [
     "pyyaml==6.0.3",
 ]
 
+[tool.fastapi]
+entrypoint = "edu_librarian.api:app"
 
 [build-system]
 requires = ["uv_build>=0.11.3,<0.12"]
