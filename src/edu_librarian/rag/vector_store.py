@@ -1,3 +1,5 @@
+import os
+
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
@@ -17,7 +19,7 @@ def get_vector_store(
     if location == ":memory:":
         client = QdrantClient(location=location)
     elif location.startswith(("http://", "https://")):
-        client = QdrantClient(url=location)
+        client = QdrantClient(url=location, api_key=os.environ["QDRANT_API_KEY"])
     else:
         client = QdrantClient(path=location)
 

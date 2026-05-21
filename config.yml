@@ -27,7 +27,7 @@ rag:
     dimensions: 1536
   store:
     collection: "ural_corpus"
-    location: ":memory:"
+    location: "https://qdrant-stand.inzhenerka-cloud.com:443"  # or :memory:
   retriever:
     k: 3
     score_threshold: 0.6
